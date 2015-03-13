@@ -1,18 +1,35 @@
 #include <stdlib.h>
 #include <avr/interrupt.h>
 #include <util/delay.h>
-#include <avr/io.h>
 
 #include "serial.c"
 #include "sensors.c"
 #include "rtc.c"
 #include "math.h"
+#include "main.h"
 
 #define MAX(a,b) (a>b ? a : b)
 
 volatile unsigned char update;
 volatile unsigned char start;
 volatile unsigned char status;
+volatile unsigned char recv;
+hbconfig config;
+
+void rcv(unsigned char byte) {
+  switch(recv) {
+  case 2:
+    config.time = byte << 8;
+    break;
+  case 1:
+    config.time += byte;
+    break;
+  case 0:
+    config.temp = byte;
+    break;
+  }
+}
+
 
 /*
  * ISR RX complete
@@ -20,14 +37,24 @@ volatile unsigned char status;
  */
 ISR(USART_RX_vect) {
   uint8_t r = UDR0;
-  USART_putstring("OK");
-  switch (r) {
-  case 's':
-    start = 1;
-    break;
-  case 't':
-    start = 0;
-    break;
+
+  if (recv > 0) {
+    recv--;
+    rcv(r);
+  }
+  else {
+    USART_putstring("OK");
+    switch (r) {
+    case 's':
+      start = 1;
+      break;
+    case 't':
+      start = 0;
+      break;
+    case 'c':
+      recv = 3;
+      break;
+    }
   }
 }
 
@@ -36,18 +63,19 @@ void run() {
 
   unsigned char cycle, part;
   unsigned char temp1, temp2, last_temp;
-  float dt, dg;
+  int dt, dg;
+
 
   set_temp = 53;
   set_time = 3600*6;
   countdown = set_time;
 
-  part = cycle = 0;
+  part = cycle = dg = dt = 0;
   while (countdown-- > 0) {
     temp1 = phys_temp(0);
     temp2 = phys_temp(1);
 
-    USART_putstring("MSG:12:");
+    USART_putstring("MSG:");
     USART_Transmit('T');
     USART_Transmit(temp1);
     USART_Transmit(temp2);
@@ -60,12 +88,16 @@ void run() {
     USART_Transmit(cycle);
     USART_Transmit('S');
     USART_Transmit(PORTD & (1<<PD5));
-    USART_putstring(":EOM:");
+    USART_Transmit('G');
+    USART_Transmit(dg);
+    USART_Transmit('D');
+    USART_Transmit(dt);
+    USART_putstring(":EOM");
 
     if ((cycle%30)==0) {
       temp1 = MAX(temp1, temp2);
       dt = temp1 - last_temp;
-      dg = last_temp - temp1;
+      dg = set_temp - temp1;
       last_temp = temp1;
       if ((dg - dt) > 0) {
         part = part + round((30.0-part)/2.0);
@@ -99,14 +131,20 @@ void run() {
 
 
 int main () {
-  
   // Relay controller 1;
   DDRD |= (1<<PD5);
   // Relay controller 2;
   DDRB |= (1<<PB0);
   USART_Init();
+  USART_Transmit('c');
+  USART_putstring("Booting");  
+
   ADC_init();
   USART_putstring("Ready");
+
+  config.time = 3600*6;
+  config.temp = 52;
+  
   sei();
   while (1) {
     if (start == 1) {
