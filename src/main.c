@@ -69,7 +69,7 @@ void run() {
   status = HB_ACTIVE;
 
   set_temp = 53;
-  set_time = 90;
+  set_time = 3600*6;
   countdown = set_time;
 
   part = cycle = dg = dt = 0;
