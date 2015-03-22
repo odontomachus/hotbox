@@ -10,7 +10,7 @@ PORT="COM4"
 def listen(s):
     keys = ['Time left', 'T1', 'T2', 'Off goal', 'Temp diff', 'Part', 'State', 'Cycle']
     print("\t".join(keys))
-    out = open("hotbox.tsv")
+    out = open("hotbox.tsv", "w")
     while True:
         try:
             message = s.read(100)
@@ -84,9 +84,16 @@ s = serial.Serial(PORT, 9600, timeout=0.5)
 while len(s.read(1)) > 0:
     pass
 
-# Set time and temperature
+
+# Restart
 s.write(b't')
+
+# Set time and temperature
 configure(s, 3600*6, 53)
+
+# start
 s.write(b's')
+
+# get output
 listen(s)
 
