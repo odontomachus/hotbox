@@ -7,6 +7,7 @@ from serial import SerialException
 PORT="/dev/ttyUSB0"
 
 def listen(s):
+    keys = ['Time left', 'T1', 'T2', 'Off goal', 'Temp diff', 'Part', 'State', 'Cycle']
     print("\t".join(keys))
     while True:
         try:
