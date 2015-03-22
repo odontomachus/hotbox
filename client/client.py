@@ -11,6 +11,7 @@ def listen(s):
     print("\t".join(keys))
     while True:
         try:
+            row = defaultdict(str)
             message = s.read(30)
             parse_message(message, row)
             if row:
