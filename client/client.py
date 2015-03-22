@@ -2,9 +2,7 @@ import serial
 
 PORT="/dev/ttyUSB0"
 
-s = serial.Serial(PORT, 9600, timeout=0.5)
-
-def listen():
+def listen(s):
         data = []
         s.write(b"s")
         while True:
@@ -59,12 +57,17 @@ def parse_message(message, data):
             return False
                 
 
+def configure(s, ctime, temp):
+    s.write(b'c'+struct.pack('B', ctime//256) + struct.pack('B', ctime//256) + struct.pack('B', temp))
+
+s = serial.Serial(PORT, 9600, timeout=0.5)
+
 # empty buffer
 while len(s.read(1)) > 0:
     pass
 
-d = {}
-
+# Set time and temperature
+configure(s, 3600*6, 53)
 s.write(b's')
-listen()
+listen(s)
 
