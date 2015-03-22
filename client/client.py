@@ -4,7 +4,7 @@ import struct
 import serial
 from serial import SerialException
 
-PORT="/dev/ttyUSB0"
+PORT="COM4"
 
 def listen(s):
     keys = ['Time left', 'T1', 'T2', 'Off goal', 'Temp diff', 'Part', 'State', 'Cycle']
