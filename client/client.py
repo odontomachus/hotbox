@@ -1,22 +1,24 @@
+from collections import defaultdict
+import struct
+
 import serial
+from serial import SerialException
 
 PORT="/dev/ttyUSB0"
 
 def listen(s):
-        data = []
-        s.write(b"s")
-        while True:
-            try:
-                message = s.read(30)
-                row = {}
-                parse_message(message, row)
-                data.append(row)
-                if row:
-                    print(row)
-            except:
-                pass
+    print("\t".join(keys))
+    while True:
+        try:
+            message = s.read(30)
+            parse_message(message, row)
+            if row:
+                print("\t".join(map(lambda key: str(row[key]), keys)))
+        except SerialException as e:
+            pass
+        except KeyboardInterrupt:
+            break
 
-test = "MSG:5:T\x55\x33C\x08\xa1P\x0fY\x08S\x20:EOM"
 
 def parse_message(message, data):
     while len(message) > 4 and message[0:4] != b"MSG:":
@@ -44,10 +46,10 @@ def parse_message(message, data):
                 data['State'] = "On" if message[1] != '\x00' else "Off"
                 message = message[2:]
             elif message[0] == b'G'[0]:
-                data['Off goal'] = message[1]
+                data['Off goal'] = struct.unpack('b', message[1:2])[0]
                 message = message[2:]
             elif message[0] == b'D'[0]:
-                data['Temp diff'] = message[1]
+                data['Temp diff'] = struct.unpack('b', message[1:2])[0]
                 message = message[2:]
             elif message == b":EOM":
                 return True

@@ -3,8 +3,8 @@
  */
 void RTC_init(void)
 {
-  // Oscillator might take as long as one second to stabilize.
-  _delay_ms(1000);
+  // Let oscillator stabilize
+  _delay_ms(100);
   // Disable the Timer/Counter2 interrupts
   TIMSK2 &= ~((1<<OCIE2A)|(1<<OCIE2B)|(1<<TOIE2));
   // Select clock source by setting AS2 as appropriate.
@@ -20,5 +20,5 @@ void RTC_init(void)
   // Clear timer interrupt flag registers
   TIFR2 |= ((1<<OCF2A)|(1<<OCF2B)|(1<<TOV2));
   // Enable timer overflow interrupt
-  TIMSK2 |= (1<<TOIE2);
+  //TIMSK2 |= (1<<TOIE2);
 }
