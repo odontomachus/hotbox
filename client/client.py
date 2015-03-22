@@ -11,12 +11,20 @@ def listen(s):
     print("\t".join(keys))
     while True:
         try:
-            row = defaultdict(str)
-            message = s.read(30)
-            parse_message(message, row)
-            if row:
-                print("\t".join(map(lambda key: str(row[key]), keys)))
-        except SerialException as e:
+            message = s.read(100)
+            if len(message) == 0:
+                continue
+            if message[0:4] != b"MSG:":
+                try:
+                    print(message.decode('ascii'))
+                    sleep(0.2)
+                except UnicodeDecodeError:
+                    pass
+            else:
+                row = defaultdict(str)
+                parse_message(message, row)
+                if row:
+                    print("\t".join(map(lambda key: str(row[key]), keys)))        except SerialException as e:
             pass
         except KeyboardInterrupt:
             break
