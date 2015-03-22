@@ -42,7 +42,6 @@ ISR(USART_RX_vect) {
     rcv(r);
   }
   else {
-    USART_putstring("OK");
     switch (r) {
     case 's':
       if (status == HB_STOP) {
@@ -59,6 +58,17 @@ ISR(USART_RX_vect) {
   }
 }
 
+/**
+ * Interrupt once per second during heating.
+ */
+ISR(TIMER2_COMPA_vect) {
+  if (status == HB_ACTIVE) {
+    update = 1;
+  }
+}
+
+
+
 void run() {
   unsigned int set_time, set_temp, countdown;
 
@@ -66,14 +76,21 @@ void run() {
   unsigned char temp1, temp2, last_temp;
   int dt, dg;
 
+  USART_putstring("Starting");
+
   status = HB_ACTIVE;
 
-  set_temp = 53;
-  set_time = 3600*6;
+  // Set timer
+  OCR2A = TCNT2;
+  // Enable compare interrupt
+  TIMSK2 |= (1<<OCIE2A);
+
+  set_temp = config.temp;
+  set_time = config.time;
   countdown = set_time;
 
   part = cycle = dg = dt = 0;
-  while (countdown-- > 0) {
+  while ((countdown-- > 0) && (status == HB_ACTIVE)) {
     temp1 = phys_temp(0);
     temp2 = phys_temp(1);
 
@@ -89,7 +106,7 @@ void run() {
     USART_Transmit('Y');
     USART_Transmit(cycle);
     USART_Transmit('S');
-    USART_Transmit(PORTD & (1<<PD5));
+    USART_Transmit(PIND & (1<<PD5));
     USART_Transmit('G');
     USART_Transmit(dg);
     USART_Transmit('D');
@@ -120,34 +137,36 @@ void run() {
       }
     }
     cycle = (cycle + 1)%HB_CYCLE;
-
-    temp1 = phys_temp(0);
-    temp2 = phys_temp(1);
-
-    _delay_ms(900);
-
+ 
+    // wait until interrupt
+    while ((update != 1) && (status == HB_ACTIVE));
+    update = 0;
+    //_delay_ms(900);
   }
 
   PORTD &= ~(1<<PD5);
   status = HB_STOP;
+  // Disable compare interrupt
+  TIMSK2 &= ~(1<<OCIE2A);
 }
 
 
 int main () {
+  RTC_init();
   // Relay controller 1;
   DDRD |= (1<<PD5);
   // Relay controller 2;
   DDRB |= (1<<PB0);
   USART_Init();
-  USART_Transmit('c');
   USART_putstring("Booting");  
 
   ADC_init();
-  USART_putstring("Ready");
+
 
   config.time = 3600*6;
   config.temp = 52;
-  
+
+  USART_putstring("Ready");
   sei();
   while (1) {
     if (status == HB_START) {
