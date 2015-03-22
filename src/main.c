@@ -11,7 +11,6 @@
 #define MAX(a,b) (a>b ? a : b)
 
 volatile unsigned char update;
-volatile unsigned char start;
 volatile unsigned char status;
 volatile unsigned char recv;
 hbconfig config;
@@ -46,10 +45,12 @@ ISR(USART_RX_vect) {
     USART_putstring("OK");
     switch (r) {
     case 's':
-      start = 1;
+      if (status == HB_STOP) {
+        status = HB_START;
+      }
       break;
     case 't':
-      start = 0;
+      status = HB_STOP;
       break;
     case 'c':
       recv = 3;
@@ -65,9 +66,10 @@ void run() {
   unsigned char temp1, temp2, last_temp;
   int dt, dg;
 
+  status = HB_ACTIVE;
 
   set_temp = 53;
-  set_time = 3600*6;
+  set_time = 90;
   countdown = set_time;
 
   part = cycle = dg = dt = 0;
@@ -94,13 +96,13 @@ void run() {
     USART_Transmit(dt);
     USART_putstring(":EOM");
 
-    if ((cycle%30)==0) {
+    if ((cycle%HB_CYCLE)==0) {
       temp1 = MAX(temp1, temp2);
       dt = temp1 - last_temp;
       dg = set_temp - temp1;
       last_temp = temp1;
       if ((dg - dt) > 0) {
-        part = part + round((30.0-part)/2.0);
+        part = part + round(((float) HB_CYCLE-part)/2.0);
       }
       else if ((dg - dt) < 0) {
         if (part > 0) {
@@ -117,7 +119,7 @@ void run() {
         PORTD |= (1<<PD5);
       }
     }
-    cycle = (cycle + 1)%30;
+    cycle = (cycle + 1)%HB_CYCLE;
 
     temp1 = phys_temp(0);
     temp2 = phys_temp(1);
@@ -127,6 +129,7 @@ void run() {
   }
 
   PORTD &= ~(1<<PD5);
+  status = HB_STOP;
 }
 
 
@@ -147,7 +150,7 @@ int main () {
   
   sei();
   while (1) {
-    if (start == 1) {
+    if (status == HB_START) {
       run();
       USART_putstring("Ready");
     }
