@@ -1,5 +1,6 @@
 from collections import defaultdict
 import struct
+from time import sleep
 
 import serial
 from serial import SerialException
@@ -9,6 +10,7 @@ PORT="COM4"
 def listen(s):
     keys = ['Time left', 'T1', 'T2', 'Off goal', 'Temp diff', 'Part', 'State', 'Cycle']
     print("\t".join(keys))
+    out = open("hotbox.tsv")
     while True:
         try:
             message = s.read(100)
@@ -24,10 +26,14 @@ def listen(s):
                 row = defaultdict(str)
                 parse_message(message, row)
                 if row:
-                    print("\t".join(map(lambda key: str(row[key]), keys)))        except SerialException as e:
+                    print("\t".join(map(lambda key: str(row[key]), keys)))
+                    out.write("\t".join(map(lambda key: str(row[key]), keys))+"\r\n")
+                    out.flush()
+        except SerialException as e:
             pass
         except KeyboardInterrupt:
             break
+
 
 
 def parse_message(message, data):
@@ -70,7 +76,7 @@ def parse_message(message, data):
                 
 
 def configure(s, ctime, temp):
-    s.write(b'c'+struct.pack('B', ctime//256) + struct.pack('B', ctime//256) + struct.pack('B', temp))
+    s.write(b'c'+struct.pack('B', ctime//256) + struct.pack('B', ctime%256) + struct.pack('B', temp))
 
 s = serial.Serial(PORT, 9600, timeout=0.5)
 
@@ -79,6 +85,7 @@ while len(s.read(1)) > 0:
     pass
 
 # Set time and temperature
+s.write(b't')
 configure(s, 3600*6, 53)
 s.write(b's')
 listen(s)
