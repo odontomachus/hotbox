@@ -1,8 +1,12 @@
 #include <stdlib.h>
 
-#define HB_STOP 0
 #define HB_START 1
 #define HB_ACTIVE 2
+#define HB_READY 3
+#define HB_BOOT 4
+#define HB_INIT 5
+
+
 #define HB_CYCLE 30
 #define MSG_RUN_STATUS 1
 #define MSG_CONFIG 2

@@ -40,13 +40,13 @@ ISR(USART_RX_vect) {
     switch (r) {
     // Start run
     case 's':
-      if (status == HB_STOP) {
+      if (status == HB_READY) {
         status = HB_START;
       }
       break;
     // stop run
     case 't':
-      status = HB_STOP;
+      status = HB_READY;
       break;
     // query config
     case 'q':
@@ -93,9 +93,8 @@ void run() {
   unsigned char temp1, temp2, last_temp;
   int dt, dg;
 
-  USART_putstring("Starting");
-
   status = HB_ACTIVE;
+  send_status();
 
   // Set timer
   OCR2A = TCNT2;
@@ -115,21 +114,21 @@ void run() {
     cli();
     USART_putstring("\0\0\0");
     USART_transmit(MSG_RUN_STATUS);
-    USART_transmit('T');
+    // Temp
     USART_transmit(temp1);
     USART_transmit(temp2);
-    USART_transmit('C');
+    // Countdown
     USART_transmit(countdown>>8);
     USART_transmit(countdown);
-    USART_transmit('P');
+    // Part
     USART_transmit(part);
-    USART_transmit('Y');
+    // Cycle
     USART_transmit(cycle);
-    USART_transmit('S');
+    // On/OFF on PD5
     USART_transmit(PIND & (1<<PD5));
-    USART_transmit('G');
+    // Off goal
     USART_transmit(dg);
-    USART_transmit('D');
+    // Temp diff since last update
     USART_transmit(dt);
     sei();
 
@@ -164,21 +163,24 @@ void run() {
     //_delay_ms(900);
   }
 
-  PORTD &= ~(1<<PD5);
-  status = HB_STOP;
   // Disable compare interrupt
   TIMSK2 &= ~(1<<OCIE2A);
+
+  // Turn off heating
+  PORTD &= ~(1<<PD5);
 }
 
 
 int main () {
+  status = HB_BOOT;
   RTC_init();
   // Relay controller 1;
   DDRD |= (1<<PD5);
   // Relay controller 2;
   DDRB |= (1<<PB0);
   USART_init();
-  USART_putstring("Booting");  
+  status = HB_INIT;
+  send_status();
 
   ADC_init();
 
@@ -186,12 +188,14 @@ int main () {
   config.time = 3600*6;
   config.temp = 52;
 
-  USART_putstring("Ready");
+  status = HB_READY;
+  send_status();
   sei();
   while (1) {
     if (status == HB_START) {
       run();
-      USART_putstring("Ready");
+      status = HB_READY;
+      send_status();
     }
   }
 }
