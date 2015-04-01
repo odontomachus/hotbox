@@ -8,12 +8,7 @@
 #include "math.h"
 #include "main.h"
 
-#define MAX(a,b) (a>b ? a : b)
-
-volatile unsigned char update;
-volatile unsigned char status;
-volatile unsigned char recv;
-hbconfig config;
+#define MAX(a,b) ( a > b ? a : b)
 
 void rcv(unsigned char byte) {
   switch(recv) {
@@ -43,13 +38,23 @@ ISR(USART_RX_vect) {
   }
   else {
     switch (r) {
+    // Start run
     case 's':
       if (status == HB_STOP) {
         status = HB_START;
       }
       break;
+    // stop run
     case 't':
       status = HB_STOP;
+      break;
+    // query config
+    case 'q':
+      send_config();
+      break;
+    // query status
+    case 'r':
+      send_status();
       break;
     case 'c':
       recv = 3;
@@ -67,7 +72,19 @@ ISR(TIMER2_COMPA_vect) {
   }
 }
 
+void send_config() {
+    USART_putstring("\0\0\0");
+    USART_transmit(MSG_CONFIG);
+    USART_transmit((unsigned char) (config.time >> 8));
+    USART_transmit((unsigned char) config.time);
+    USART_transmit(config.temp);
+}
 
+void send_status() {
+    USART_putstring("\0\0\0");
+    USART_transmit(MSG_STATUS);
+    USART_transmit(status);
+}  
 
 void run() {
   unsigned int set_time, set_temp, countdown;
@@ -94,24 +111,27 @@ void run() {
     temp1 = phys_temp(0);
     temp2 = phys_temp(1);
 
-    USART_putstring("MSG:");
-    USART_Transmit('T');
-    USART_Transmit(temp1);
-    USART_Transmit(temp2);
-    USART_Transmit('C');
-    USART_Transmit(countdown>>8);
-    USART_Transmit(countdown);
-    USART_Transmit('P');
-    USART_Transmit(part);
-    USART_Transmit('Y');
-    USART_Transmit(cycle);
-    USART_Transmit('S');
-    USART_Transmit(PIND & (1<<PD5));
-    USART_Transmit('G');
-    USART_Transmit(dg);
-    USART_Transmit('D');
-    USART_Transmit(dt);
-    USART_putstring(":EOM");
+    // Disable interrupts during message transmission
+    cli();
+    USART_putstring("\0\0\0");
+    USART_transmit(MSG_RUN_STATUS);
+    USART_transmit('T');
+    USART_transmit(temp1);
+    USART_transmit(temp2);
+    USART_transmit('C');
+    USART_transmit(countdown>>8);
+    USART_transmit(countdown);
+    USART_transmit('P');
+    USART_transmit(part);
+    USART_transmit('Y');
+    USART_transmit(cycle);
+    USART_transmit('S');
+    USART_transmit(PIND & (1<<PD5));
+    USART_transmit('G');
+    USART_transmit(dg);
+    USART_transmit('D');
+    USART_transmit(dt);
+    sei();
 
     if ((cycle%HB_CYCLE)==0) {
       temp1 = MAX(temp1, temp2);
@@ -157,7 +177,7 @@ int main () {
   DDRD |= (1<<PD5);
   // Relay controller 2;
   DDRB |= (1<<PB0);
-  USART_Init();
+  USART_init();
   USART_putstring("Booting");  
 
   ADC_init();

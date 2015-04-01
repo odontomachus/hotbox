@@ -1,12 +1,10 @@
 #include <stdlib.h>
-
+#include <serial.h>
 
 #define BAUDRATE 9600UL
 #define BAUD_PRESCALLER (((F_CPU / (BAUDRATE * 8UL))) - 1)
 
-
-
-void USART_Init()
+void USART_init()
 {
     /* Set baud rate (using u2x=1 doubles effective baud rate) */
   UBRR0H = (uint8_t)(BAUD_PRESCALLER>>8);
@@ -25,24 +23,24 @@ void USART_Init()
 /**
  * Send a byte.
  */
-void USART_Transmit( unsigned char data )
+void USART_transmit( unsigned char data )
 {
-    /* Wait for empty transmit buffer */
-    while ( !( UCSR0A & (1<<UDRE0)) )
-        ;
-    /* Put data into buffer, sends the data */
-    UDR0 = data;
+  /* Wait for empty transmit buffer */
+  while ( !( UCSR0A & (1<<UDRE0)) )
+    ;
+  /* Put data into buffer, sends the data */
+  UDR0 = data;
 }
 
-void USART_Flush( void )
+void USART_flush( void )
 {
-    unsigned char dummy;
-    while ( UCSR0A & (1<<RXC0) ) dummy = UDR0;
+  unsigned char dummy;
+  while ( UCSR0A & (1<<RXC0) ) dummy = UDR0;
 }
 
 void USART_putstring(char* StringPtr){
-    while(*StringPtr != 0x00){
-        USART_Transmit(*StringPtr);
-        StringPtr++;}
- 
+  while(*StringPtr != '\0') {
+    USART_transmit(*StringPtr);
+    StringPtr++;
+  }
 }
