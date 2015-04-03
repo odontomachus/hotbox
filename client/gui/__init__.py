@@ -1,6 +1,10 @@
+import threading
 import tkinter as tk
+import queue
 
-from client import Client
+from time import sleep
+
+import client
 from .controls import Controls
 from .display import Display
 from .config import Config, ConfigPort
@@ -13,47 +17,65 @@ class Logger(tk.Frame):
     def log(self, message):
         pass
 
-class App:
-    def __init__(self):
+class App(tk.Frame):
+    def __init__(self, master=None):
+        super().__init__(master)
         # Open main window
-        root = tk.Tk()
-        root.title("Hotbox")
-        root.wm_geometry('800x600')
-        self.root = root
+        self.master.title("Hotbox")
+        self.master.wm_geometry('800x600')
 
-        self.menu = tk.Menu(root)
-        self.file_menu = tk.Menu(self.menu, tearoff=0)
-        self.menu.add_cascade(label='File', menu=self.file_menu)
-        self.file_menu.add_command(label='Set Port', command=self.configure_port)
-        self.file_menu.add_command(label='Configure', command=self.configure)
-        self.file_menu.add_command(label='Quit', command=root.quit)
-        root['menu'] = self.menu
+        menu = tk.Menu(self)
+        file_menu = tk.Menu(menu, tearoff=0)
+        menu.add_cascade(label='File', menu=file_menu)
+        file_menu.add_command(label='Set Port', command=self.configure_port)
+        file_menu.add_command(label='Configure', command=self.configure)
+        file_menu.add_command(label='Quit', command=self.quit)
+        self.master['menu'] = menu
 
         self.logger = Logger()
         self.display = Display(self.logger)
 
         # setup client
-        self.controller = Client()
+        self.controller = client.Client()
         self.config_port = ConfigPort(self.main, self.controller)
         self.config = Config(self.main, self.controller)
-
-        self.controller.register(('status',), self.state_change)
-        self.controller.register(('run_status',), self.display.run_message)
-        self.controller.register(('config',), self.config.update_config)
-
-        # connect client
-        self.controller.connect(self.config_port.port)
 
         self.controls = Controls(self.controller)
         self.controls.grid()
 
+        # connect client
+        self.controller.start()
+        self.controller.connect(self.config_port.port)
 
-    def state_change(self, state):
-        self.controls.state_change(state)
-        self.log.state_change(state)
+        # callbacks for event response
+        self.callbacks = (
+            (self.controller.msg_queue[client.MSG_RUN_STATUS], 
+             self.display.run_message),
+            (self.controller.msg_queue[client.MSG_CONFIG],
+             self.config.update_config),
+            (self.controller.msg_queue[client.MSG_STATUS],
+             self.state_change),
+        )
+
+        # start serial event polling
+        self.poll()
+
+    def state_change(self, message):
+        self.controls.state_change(message.status)
+
+    def quit(self):
+        # stop serial client thread
+        self.controller.running = False
+        super().quit()
+
+    def destroy(self):
+        # stop serial client thread
+        self.controller.running = False
+        super().destroy()
 
     def configure(self):
         """ Show configuration panel """
+        self.controller.oven_query_config()
         self.controls.grid_forget()
         self.display.grid_forget()
         self.config_port.grid_forget()
@@ -71,4 +93,15 @@ class App:
         self.controls.grid()
         self.display.grid()
 
-        
+    def poll(self):
+        for (mqueue, callback) in self.callbacks:
+            try:
+                message = mqueue.get_nowait()
+                if message:
+                    callback(message)
+            except queue.Empty:
+                pass
+
+        self.master.after(100, self.poll)
+
+
