@@ -72,18 +72,24 @@ ISR(TIMER2_COMPA_vect) {
   }
 }
 
+void send_msg_start() {
+    USART_transmit('\0');
+    USART_transmit('\0');
+    USART_transmit('\0');
+}
+
 void send_config() {
-    USART_putstring("\0\0\0");
-    USART_transmit(MSG_CONFIG);
-    USART_transmit((unsigned char) (config.time >> 8));
-    USART_transmit((unsigned char) config.time);
-    USART_transmit(config.temp);
+  send_msg_start();
+  USART_transmit(MSG_CONFIG);
+  USART_transmit((unsigned char) (config.time >> 8));
+  USART_transmit((unsigned char) config.time);
+  USART_transmit(config.temp);
 }
 
 void send_status() {
-    USART_putstring("\0\0\0");
-    USART_transmit(MSG_STATUS);
-    USART_transmit(status);
+  send_msg_start();
+  USART_transmit(MSG_STATUS);
+  USART_transmit(status);
 }  
 
 void run() {
@@ -112,7 +118,7 @@ void run() {
 
     // Disable interrupts during message transmission
     cli();
-    USART_putstring("\0\0\0");
+    send_msg_start();
     USART_transmit(MSG_RUN_STATUS);
     // Temp
     USART_transmit(temp1);
@@ -181,7 +187,6 @@ int main () {
   USART_init();
   status = HB_INIT;
   send_status();
-
   ADC_init();
 
 
