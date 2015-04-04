@@ -17,19 +17,44 @@ class Display(tk.Frame):
         self.state = None
         self.logger = logger
         self.history = []
-        self.bt_save = tk.Button(self, text='Save', command=self.save, state=tk.DISABLED)
-        self.bt_save.pack()
-
         self.plt_data = ([],[],[])
         
         # Create dashboard and indicators
-        self.dash = tk.Canvas(self, width = 200, height = 30)
+        self.dash = tk.Canvas(self, width = 200, height = 60)
         self.dash.pack()
-        self.status_id = self.dash.create_oval(5,5,25,25,
+        self.dash.create_text(25, 35, text="Running")
+        self.status_id = self.dash.create_oval(15,5,35,25,
             fill="green",
             disabledfill="red",
             state=tk.DISABLED)
-        self.heating_bar = StatusBar(self.dash, 30,5,90,25,0)
+        self.dash.create_text(130, 35, text="Heat")
+        self.heating_bar = StatusBar(self.dash, 70,5,190,25,0,15)
+
+        info_box = tk.Frame(self)
+        info_box.pack()
+        tk.Label(info_box, text="Time left:").grid(column=0,row=0)
+        self.countdown = tk.StringVar()
+        tk.Label(info_box, textvariable=self.countdown).grid(column=1,row=0)
+
+        self.total_time = tk.StringVar()
+        tk.Label(info_box, text="Run time:").grid(column=0,row=1)
+        tk.Label(info_box, textvariable=self.total_time).grid(column=1,row=1)
+
+        self.temp1 = tk.StringVar()
+        self.temp2 = tk.StringVar()
+        self.target_temp = tk.StringVar()
+        tk.Label(info_box, text="Temp 1:", anchor='sw').grid(column=2,row=0)
+        tk.Label(info_box, textvariable=self.temp1, anchor='sw').grid(column=3,row=0)
+        tk.Label(info_box, text="Temp 2:", anchor='sw').grid(column=4,row=0)
+        tk.Label(info_box, textvariable=self.temp2, anchor='sw').grid(column=5,row=0)
+        tk.Label(info_box, text="Target temp:", anchor='sw').grid(column=2,row=1)
+        tk.Label(info_box, textvariable=self.target_temp, anchor='sw').grid(column=3,row=1)
+
+
+
+        # save button
+        self.bt_save = tk.Button(self, text='Save', command=self.save, state=tk.DISABLED)
+        self.bt_save.pack()
 
         # create graph
         self.ymin = self.ymax = None
@@ -78,13 +103,17 @@ class Display(tk.Frame):
             self.dash.itemconfigure(self.status_id, state=tk.NORMAL)
         else:
             self.dash.itemconfigure(self.status_id, state=tk.DISABLED)
+            self.heating_bar.set_fraction(0)
 
     def run_message(self, data):
         self.history.append(data)
         frac = data.part/client.HB_CYCLE
-
         # update heating percent bar
         self.heating_bar.set_fraction(frac)
+
+        self.countdown.set(str(datetime.timedelta(seconds=data.countdown)))
+        self.temp1.set(str(data.t1) + "C")
+        self.temp2.set(str(data.t2) + "C")
 
         # update temp graph
         time = data.time - data.countdown
@@ -96,6 +125,8 @@ class Display(tk.Frame):
             self.ymin = min(data.goal-2, data.t1-2, data.t2-2)
             self.templine.set_xdata([0, data.time])
             self.templine.set_ydata([data.goal, data.goal])
+            self.total_time.set(str(datetime.timedelta(seconds=data.time)))
+            self.target_temp.set(str(data.goal) + "C")
         else:
             self.ymax = max(self.ymax, data.goal+2, data.t1+2, data.t2+2)
             self.ymin = min(self.ymin, data.goal-2, data.t1-2, data.t2-2)

@@ -55,7 +55,7 @@ class ConfigPort(tk.Frame):
 
         self.v_port = tk.StringVar()
 
-        self.port = '/dev/ttyUSB0'
+        self.port = 'COM4'
         self.v_port.set(self.port)
 
         tk.Label(self, text="Serial Port").grid(column=0, row=0)

@@ -19,6 +19,8 @@ class StopButton(tk.Button):
 
 class Controls(tk.Frame):
     def __init__(self, controller, *args, **kwargs):
+        if ('pady' not in kwargs):
+            kwargs['pady'] = 10
         super().__init__(*args, **kwargs)
         self.buttons = buttons = OrderedDict()
         buttons['start'] = StartButton(self, text='Start', command = controller.oven_start, state=tk.DISABLED)
