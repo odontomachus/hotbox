@@ -136,6 +136,11 @@ void run() {
     USART_transmit(dg);
     // Temp diff since last update
     USART_transmit(dt);
+    // Send time settings for this run
+    USART_transmit(set_time>>8);
+    USART_transmit(set_time);
+    // Send temp settings
+    USART_transmit(set_temp);
     sei();
 
     if ((cycle%HB_CYCLE)==0) {
