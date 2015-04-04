@@ -11,11 +11,11 @@ from .config import Config, ConfigPort
 
 class Logger(tk.Frame):
     def error(self, message):
-        pass
+        print(message)
     def warn(self, message):
-        pass
+        print(message)
     def log(self, message):
-        pass
+        print(message)
 
 class App(tk.Frame):
     def __init__(self, master=None):
@@ -29,6 +29,7 @@ class App(tk.Frame):
         menu.add_cascade(label='File', menu=file_menu)
         file_menu.add_command(label='Set Port', command=self.configure_port)
         file_menu.add_command(label='Configure', command=self.configure)
+        file_menu.add_command(label='Controls', command=self.main)
         file_menu.add_command(label='Quit', command=self.quit)
         self.master['menu'] = menu
 
@@ -42,6 +43,7 @@ class App(tk.Frame):
 
         self.controls = Controls(self.controller)
         self.controls.grid()
+        self.display.grid()
 
         # connect client
         self.controller.start()
@@ -62,6 +64,7 @@ class App(tk.Frame):
 
     def state_change(self, message):
         self.controls.state_change(message.status)
+        self.display.state_change(message.status)
 
     def quit(self):
         # stop serial client thread
