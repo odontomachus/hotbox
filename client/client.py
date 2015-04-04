@@ -22,6 +22,8 @@ STATE_READY = 3
 STATE_BOOT = 4
 STATE_INIT = 5
 
+HB_CYCLE = 30
+
 class RunStatus:
     __slots__ = ('countdown', 't1', 't2', 'dg', 'dt', 'part', 'state', 'cycle')
     def __init__(self, message):
