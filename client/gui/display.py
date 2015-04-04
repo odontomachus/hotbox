@@ -1,6 +1,8 @@
 import tkinter as tk
 import tkinter.filedialog
 
+import datetime
+
 import matplotlib
 matplotlib.use("TkAgg")
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
@@ -33,10 +35,16 @@ class Display(tk.Frame):
         self.ymin = self.ymax = None
         self.figure = Figure()
         self.plot = self.figure.add_subplot(111)
-        self.plot.set_autoscaley_on(True)
-        self.t1_plot, = self.plot.plot(self.plt_data[0], self.plt_data[1])
-        self.t2_plot, = self.plot.plot(self.plt_data[0], self.plt_data[2])
-        self.templine, = self.plot.plot([], [], 'r-.')
+        self.plot.axes.autoscale(True, True, False)
+        self.plot.axes.set_ymargin(0.01)
+        self.plot.set_xlabel("Time")
+        self.plot.set_ylabel("Temp (C)")
+        tfmt = matplotlib.ticker.FuncFormatter(lambda x,_: str(datetime.timedelta(seconds=int(x))))
+        self.plot.xaxis.set_major_formatter(tfmt)
+        self.t1_plot, = self.plot.plot(self.plt_data[0], self.plt_data[1], label="Temp 1")
+        self.t2_plot, = self.plot.plot(self.plt_data[0], self.plt_data[2], label="Temp 2")
+        self.templine, = self.plot.plot([], [], 'r-.', label="Target temperature")
+        self.plot.legend(loc="upper left")
         self.graph = FigureCanvasTkAgg(self.figure, self)
         self.graph.draw()
         self.graph.get_tk_widget().pack()
@@ -99,7 +107,9 @@ class Display(tk.Frame):
         self.t1_plot.set_ydata(self.plt_data[1])
         self.t2_plot.set_ydata(self.plt_data[2])
         self.plot.set_xlim(xmin, xmax)
-        self.plot.set_ylim(self.ymin, self.ymax)
+        self.plot.relim(visible_only=True)
+        self.plot.autoscale_view(False, False, True)
+#        self.plot.set_ylim(self.ymin, self.ymax)
         self.figure.canvas.draw()
 
 
