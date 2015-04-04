@@ -9,12 +9,12 @@ import threading
 import serial
 from serial import SerialException
 
-RUN_LABELS = ('Time left', 'Temp 1', 'Temp 2', 'Off Goal', 'Temp Change', 'Duty cycle (/30)', 'Heating', 'Cycle')
+RUN_LABELS = ('Time left', 'Temp 1', 'Temp 2', 'Off Goal', 'Temp Change', 'Duty cycle (/30)', 'Heating', 'Cycle', 'Total time', 'Goal temp')
 
 MSG_RUN_STATUS = 1
 MSG_CONFIG = 2
 MSG_STATUS = 3
-MSG_LENGTHS = {MSG_RUN_STATUS: 13, MSG_CONFIG: 7, MSG_STATUS: 5}
+MSG_LENGTHS = {MSG_RUN_STATUS: 16, MSG_CONFIG: 7, MSG_STATUS: 5}
 
 STATE_START = 1
 STATE_ACTIVE = 2
@@ -23,7 +23,7 @@ STATE_BOOT = 4
 STATE_INIT = 5
 
 class RunStatus:
-    __slots__ = ('countdown', 't1', 't2', 'dg', 'dt', 'part', 'state', 'cycle')
+    __slots__ = ('countdown', 't1', 't2', 'dg', 'dt', 'part', 'state', 'cycle', 'time', 'goal')
     def __init__(self, message):
         self.t1 = message[0]
         self.t2 = message[1]
@@ -33,6 +33,8 @@ class RunStatus:
         self.state = "On" if message[6] != 0 else "Off"
         self.dg = struct.unpack('b', message[7:8])[0]
         self.dt = struct.unpack('b', message[8:9])[0]
+        self.time = message[9]*256 + message[10]
+        self.goal = message[11]
 
     def __str__(self):
         return "\t".join(
@@ -45,6 +47,8 @@ class RunStatus:
                  self.part,
                  self.state,
                  self.cycle,
+                 self.time,
+                 self.goal,
              )
             ))
 
