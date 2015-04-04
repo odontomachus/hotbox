@@ -36,6 +36,7 @@ class Display(tk.Frame):
         self.plot.set_autoscaley_on(True)
         self.t1_plot, = self.plot.plot(self.plt_data[0], self.plt_data[1])
         self.t2_plot, = self.plot.plot(self.plt_data[0], self.plt_data[2])
+        self.templine, = self.plot.plot([], [], 'r-.')
         self.graph = FigureCanvasTkAgg(self.figure, self)
         self.graph.draw()
         self.graph.get_tk_widget().pack()
@@ -64,8 +65,6 @@ class Display(tk.Frame):
             # new run, clear old data
             self.history = []
             del self.plt_data[0][:],self.plt_data[1][:],self.plt_data[2][:]
-            if hasattr(self, 'templine'):
-                del self.templine
             self.ymax = self.ymin = None
             self.bt_save['state'] = tk.NORMAL
             self.dash.itemconfigure(self.status_id, state=tk.NORMAL)
@@ -87,7 +86,8 @@ class Display(tk.Frame):
         if self.ymax is None:
             self.ymax = max(data.goal+2, data.t1+2, data.t2+2)
             self.ymin = min(data.goal-2, data.t1-2, data.t2-2)
-            self.templine, = self.plot.plot([0,data.time], [data.goal, data.goal], 'r--')
+            self.templine.set_xdata([0, data.time])
+            self.templine.set_ydata([data.goal, data.goal])
         else:
             self.ymax = max(self.ymax, data.goal+2, data.t1+2, data.t2+2)
             self.ymin = min(self.ymin, data.goal-2, data.t1-2, data.t2-2)
