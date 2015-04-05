@@ -59,12 +59,13 @@ class ConfigPort(tk.Frame):
         self.v_port.set(self.port)
 
         tk.Label(self, text="Serial Port").grid(column=0, row=0)
-        tk.Entry(self, exportselection=0, textvariable=self.v_port).grid(column=1, row=0)
-
+        pe = tk.Entry(self, exportselection=0, textvariable=self.v_port)
+        pe.grid(column=1, row=0)
+        pe.bind('<Return>', self.save_config)
         tk.Button(self, text="Cancel", command = self.done).grid(column=0,row=1)
         tk.Button(self, text="Save", command = self.save_config).grid(column=1,row=1)
 
-    def save_config(self):
+    def save_config(self, *args, **kwargs):
         self.port = self.v_port.get()
         self.controller.connect(self.port)
         self.done()

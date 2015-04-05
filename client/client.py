@@ -21,6 +21,7 @@ STATE_ACTIVE = 2
 STATE_READY = 3
 STATE_BOOT = 4
 STATE_INIT = 5
+STATE_DISCONNECTED = 127 # can't connect to serial
 
 HB_CYCLE = 30
 
@@ -65,6 +66,19 @@ class OvenStatus:
     def __init__(self, message):
         self.status = message[0]
 
+def check_connection(fun):
+    def inner(self, *args, **kwargs):
+        if self.state == "connected":
+            try:
+                fun(self, *args, **kwargs)
+            except SerialException:
+                self.disconnect()
+            # workaround for bug in pyserial
+            # http://sourceforge.net/p/pyserial/patches/37/
+            except TypeError as e:
+                self.disconnect()
+    return inner
+
 class Client(threading.Thread):
     """ Client class for hotbox serial connection """
     parsers = {
@@ -96,9 +110,12 @@ class Client(threading.Thread):
             sleep(0.2)
             self.oven_status()
 
-
         except SerialException:
-            self.state = 'disconnected'
+            self.disconnect()
+        # workaround for bug in pyserial
+        # http://sourceforge.net/p/pyserial/patches/37/
+        except TypeError as e:
+            self.disconnect()
         finally:
             self.start_message = 0
 
@@ -120,9 +137,14 @@ class Client(threading.Thread):
             try:
                 c = self.conn.read(1)
             except SerialException:
-                self.state = 'disconnected'
-                sleep(0.1)
+                self.disconnect()
                 continue
+            # workaround for bug in pyserial
+            # http://sourceforge.net/p/pyserial/patches/37/
+            except TypeError as e:
+                self.disconnect()
+                continue
+
 
             # wait for message
             if not c:
@@ -157,22 +179,27 @@ class Client(threading.Thread):
                 mtype = 0
                 msg_length = 0
 
+    @check_connection
     def oven_configure(self, ctime, temp):
-        if self.state == "connected":
-            self.conn.write(b'c'+struct.pack('B', ctime//256) + struct.pack('B', ctime%256) + struct.pack('B', temp))
+        self.conn.write(b'c'+struct.pack('B', ctime//256) + struct.pack('B', ctime%256) + struct.pack('B', temp))
 
+    @check_connection
     def oven_start(self):
-        if self.state == "connected":
-            self.conn.write(b's')
+        self.conn.write(b's')
 
+    @check_connection
     def oven_stop(self):
-        if self.state == "connected":
-            self.conn.write(b't')
+        self.conn.write(b't')
 
+    @check_connection
     def oven_status(self):
-        if self.state == "connected":
-            self.conn.write(b'r')
+        self.conn.write(b'r')
 
+    @check_connection
     def oven_query_config(self):
-        if self.state == "connected":
-            self.conn.write(b'q')
+        self.conn.write(b'q')
+
+    def disconnect(self):
+        self.state = 'disconnected'
+        self.msg_queue[MSG_STATUS].put(OvenStatus((STATE_DISCONNECTED,)))
+

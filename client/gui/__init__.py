@@ -22,7 +22,7 @@ class App(tk.Frame):
         super().__init__(master)
         # Open main window
         self.master.title("Hotbox")
-        self.master.wm_geometry('650x693')
+        self.master.wm_geometry('650x722')
 
         menu = tk.Menu(self)
         file_menu = tk.Menu(menu, tearoff=0)
