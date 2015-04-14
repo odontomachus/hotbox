@@ -12,25 +12,35 @@ class Config(tk.Frame):
         self.controller = controller
         super().__init__(*args, **kwargs)
 
+        self.v_h = tk.IntVar()
+        self.v_m = tk.IntVar()
+        self.v_s = tk.IntVar()
         self.v_temp = tk.IntVar()
-        self.v_time = tk.IntVar()
 
         self.time = 6*3600
         self.temp = 53
-        self.v_time.set(self.time)
+        self.v_h.set(self.time//3600)
+        self.v_m.set((self.time%3600)//60)
+        self.v_s.set(self.time%60)
         self.v_temp.set(self.temp)
 
-        tk.Label(self, text="Heating Temperature").grid(column=0, row=0)
+        tk.Label(self, text="Heating Temperature (C)").grid(column=0, row=0)
         tk.Entry(self, exportselection=0, textvariable=self.v_temp).grid(column=1, row=0)
 
         tk.Label(self, text="Heating Time").grid(column=0, row=1)
-        tk.Entry(self, exportselection=0, textvariable=self.v_time).grid(column=1, row=1)
+        time_fr = tk.Frame(self)
+        time_fr.grid(column=1, row=1)
+        tk.Spinbox(time_fr, exportselection=0, textvariable=self.v_h, width=2, from_=0, to=96).pack(side=tk.LEFT)
+        tk.Label(time_fr, text=":").pack(side=tk.LEFT)
+        tk.Spinbox(time_fr, exportselection=0, textvariable=self.v_m, width=2, from_=0, to=59).pack(side=tk.LEFT)
+        tk.Label(time_fr, text=":").pack(side=tk.LEFT)
+        tk.Spinbox(time_fr, exportselection=0, textvariable=self.v_s, width=2, from_=0, to=59).pack(side=tk.LEFT)
 
         tk.Button(self, text="Cancel", command = self.done).grid(column=0,row=2)
         tk.Button(self, text="Save", command = self.save_config).grid(column=1,row=2)
 
     def save_config(self):
-        self.time = self.v_time.get()
+        self.time = self.v_h.get()*3600+self.v_m.get()*60+self.v_s.get()
         self.temp = self.v_temp.get()
         self.controller.oven_configure(self.time, self.temp)
         self.done()
@@ -38,7 +48,10 @@ class Config(tk.Frame):
     def update_config(self, config):
         self.time = config.time
         self.temp = config.temp
-        self.v_time.set(self.time)
+        self.v_h.set(self.time//3600)
+        self.v_m.set((self.time%3600)//60)
+        self.v_s.set(self.time%60)
+
         self.v_temp.set(self.temp)
 
 class ConfigPort(tk.Frame):

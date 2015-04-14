@@ -14,7 +14,7 @@ RUN_LABELS = ('Time left', 'Temp 1', 'Temp 2', 'Off Goal', 'Temp Change', 'Duty 
 MSG_RUN_STATUS = 1
 MSG_CONFIG = 2
 MSG_STATUS = 3
-MSG_LENGTHS = {MSG_RUN_STATUS: 16, MSG_CONFIG: 7, MSG_STATUS: 5}
+MSG_LENGTHS = {MSG_RUN_STATUS: 20, MSG_CONFIG: 9, MSG_STATUS: 5}
 
 STATE_START = 1
 STATE_ACTIVE = 2
@@ -28,16 +28,17 @@ HB_CYCLE = 30
 class RunStatus:
     __slots__ = ('countdown', 't1', 't2', 'dg', 'dt', 'part', 'state', 'cycle', 'time', 'goal')
     def __init__(self, message):
-        self.t1 = message[0]
-        self.t2 = message[1]
-        self.countdown = message[2]*256 + message[3]
-        self.part = message[4]
-        self.cycle = message[5]
-        self.state = "On" if message[6] != 0 else "Off"
-        self.dg = struct.unpack('b', message[7:8])[0]
-        self.dt = struct.unpack('b', message[8:9])[0]
-        self.time = message[9]*256 + message[10]
-        self.goal = message[11]
+        (self.t1,
+         self.t2,
+         self.countdown,
+         self.part,
+         self.cycle,
+         self.state,
+         self.dg,
+         self.dt,
+         self.time,
+         self.goal,
+        ) = struct.unpack('=BBLBB?bbLB', message)
 
     def __str__(self):
         return "\t".join(
@@ -48,6 +49,7 @@ class RunStatus:
                  self.dg,
                  self.dt,
                  self.part,
+                 "On" if self.state else "Off",
                  self.state,
                  self.cycle,
                  self.time,
@@ -58,8 +60,8 @@ class RunStatus:
 class OvenConfig:
     __slots__ = ('temp', 'time')
     def __init__(self, message):
-        self.time = message[0]*256 + message[1]
-        self.temp = message[2]
+        (self.time,
+        self.temp) = struct.unpack('=LB', message)
 
 class OvenStatus:
     __slots__ = ('status',)
@@ -181,7 +183,7 @@ class Client(threading.Thread):
 
     @check_connection
     def oven_configure(self, ctime, temp):
-        self.conn.write(b'c'+struct.pack('B', ctime//256) + struct.pack('B', ctime%256) + struct.pack('B', temp))
+        self.conn.write(b'c'+struct.pack('=LB', ctime, temp))
 
     @check_connection
     def oven_start(self):

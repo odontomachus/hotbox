@@ -12,11 +12,17 @@
 
 void rcv(unsigned char byte) {
   switch(recv) {
+  case 4:
+    config.time = byte;
+    break;
+  case 3:
+    config.time += ((unsigned long) byte) << 8;
+    break;
   case 2:
-    config.time = byte << 8;
+    config.time += ((unsigned long) byte) << 16;
     break;
   case 1:
-    config.time += byte;
+    config.time += ((unsigned long) byte) << 24;
     break;
   case 0:
     config.temp = byte;
@@ -57,7 +63,7 @@ ISR(USART_RX_vect) {
       send_status();
       break;
     case 'c':
-      recv = 3;
+      recv = 5;
       break;
     }
   }
@@ -81,8 +87,10 @@ void send_msg_start() {
 void send_config() {
   send_msg_start();
   USART_transmit(MSG_CONFIG);
-  USART_transmit((unsigned char) (config.time >> 8));
   USART_transmit((unsigned char) config.time);
+  USART_transmit((unsigned char) (config.time >> 8));
+  USART_transmit((unsigned char) (config.time >> 16));
+  USART_transmit((unsigned char) (config.time >> 24));
   USART_transmit(config.temp);
 }
 
@@ -93,7 +101,8 @@ void send_status() {
 }  
 
 void run() {
-  unsigned int set_time, set_temp, countdown;
+  unsigned int set_temp;
+  unsigned long set_time, countdown;
 
   unsigned char cycle, part;
   unsigned char temp1, temp2, last_temp;
@@ -124,8 +133,10 @@ void run() {
     USART_transmit(temp1);
     USART_transmit(temp2);
     // Countdown
-    USART_transmit(countdown>>8);
     USART_transmit(countdown);
+    USART_transmit(countdown>>8);
+    USART_transmit(countdown>>16);
+    USART_transmit(countdown>>24);
     // Part
     USART_transmit(part);
     // Cycle
@@ -137,8 +148,10 @@ void run() {
     // Temp diff since last update
     USART_transmit(dt);
     // Send time settings for this run
-    USART_transmit(set_time>>8);
     USART_transmit(set_time);
+    USART_transmit(set_time>>8);
+    USART_transmit(set_time>>16);
+    USART_transmit(set_time>>24);
     // Send temp settings
     USART_transmit(set_temp);
     sei();
