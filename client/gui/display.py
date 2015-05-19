@@ -72,6 +72,7 @@ class Display(tk.Frame):
         legend = self.plot.legend(loc="lower right")
         self.graph = FigureCanvasTkAgg(self.figure, self)
         legend.draggable(state=True)
+        self.figure.tight_layout()
         self.graph.draw()
         self.graph.get_tk_widget().pack()
 
