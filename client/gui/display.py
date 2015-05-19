@@ -69,8 +69,9 @@ class Display(tk.Frame):
         self.t1_plot, = self.plot.plot(self.plt_data[0], self.plt_data[1], label="Temp 1")
         self.t2_plot, = self.plot.plot(self.plt_data[0], self.plt_data[2], label="Temp 2")
         self.templine, = self.plot.plot([], [], 'r-.', label="Target temperature")
-        self.plot.legend(loc="upper left")
+        legend = self.plot.legend(loc="lower right")
         self.graph = FigureCanvasTkAgg(self.figure, self)
+        legend.draggable(state=True)
         self.graph.draw()
         self.graph.get_tk_widget().pack()
 
