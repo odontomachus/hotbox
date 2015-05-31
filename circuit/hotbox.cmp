@@ -1,4 +1,4 @@
-Cmp-Mod V01 Created by CvPcb (2014-jan-25)-product date = Thu 28 May 2015 12:00:37 PM EDT
+Cmp-Mod V01 Created by CvPcb (2014-jan-25)-product date = Sat 30 May 2015 02:32:41 PM EDT
 
 BeginCmp
 TimeStamp = /55663D28;
@@ -11,7 +11,7 @@ BeginCmp
 TimeStamp = /55626F50;
 Reference = C2;
 ValeurCmp = CP1;
-IdModule  = Capacitors_Tantalum_SMD:TantalC_SizeA_EIA-3216_Reflow;
+IdModule  = Capacitors_Tantalum_SMD:TantalC_SizeC_EIA-6032_Reflow;
 EndCmp
 
 BeginCmp
@@ -31,14 +31,14 @@ EndCmp
 BeginCmp
 TimeStamp = /5560BAB0;
 Reference = C5;
-ValeurCmp = C;
+ValeurCmp = 12pF;
 IdModule  = Capacitors_SMD:c_0805;
 EndCmp
 
 BeginCmp
 TimeStamp = /5560BAC2;
 Reference = C6;
-ValeurCmp = C;
+ValeurCmp = 12pF;
 IdModule  = Capacitors_SMD:c_0805;
 EndCmp
 
@@ -59,14 +59,14 @@ EndCmp
 BeginCmp
 TimeStamp = /5560D6DE;
 Reference = D1;
-ValeurCmp = LED;
+ValeurCmp = LED-orange;
 IdModule  = LEDs:LED-0603;
 EndCmp
 
 BeginCmp
 TimeStamp = /5560D704;
 Reference = D2;
-ValeurCmp = LED;
+ValeurCmp = LED-green;
 IdModule  = LEDs:LED-0603;
 EndCmp
 
@@ -80,7 +80,7 @@ EndCmp
 BeginCmp
 TimeStamp = /55665CDE;
 Reference = D4;
-ValeurCmp = LED;
+ValeurCmp = LED-blue;
 IdModule  = LEDs:LED-0603;
 EndCmp
 
@@ -123,7 +123,7 @@ BeginCmp
 TimeStamp = /5564DFE6;
 Reference = P4;
 ValeurCmp = CONN_3X2;
-IdModule  = Socket_Strips:Socket_Strip_Straight_2x03;
+IdModule  = Pin_Headers:Pin_Header_Straight_2x03;
 EndCmp
 
 BeginCmp
@@ -155,20 +155,6 @@ IdModule  = Resistors_SMD:Resistor_SMD0805_ReflowWave;
 EndCmp
 
 BeginCmp
-TimeStamp = /5560D739;
-Reference = R5;
-ValeurCmp = R;
-IdModule  = Resistors_SMD:Resistor_SMD0805_ReflowWave;
-EndCmp
-
-BeginCmp
-TimeStamp = /5560D74D;
-Reference = R6;
-ValeurCmp = R;
-IdModule  = Resistors_SMD:Resistor_SMD0805_ReflowWave;
-EndCmp
-
-BeginCmp
 TimeStamp = /5560BEDA;
 Reference = R7;
 ValeurCmp = 22kR;
@@ -192,7 +178,7 @@ EndCmp
 BeginCmp
 TimeStamp = /5564C904;
 Reference = R10;
-ValeurCmp = R;
+ValeurCmp = 330R;
 IdModule  = Resistors_SMD:Resistor_SMD0805_HandSoldering;
 EndCmp
 
@@ -204,10 +190,10 @@ IdModule  = Resistors_SMD:Resistor_SMD0805_ReflowWave;
 EndCmp
 
 BeginCmp
-TimeStamp = /55665CD3;
-Reference = R12;
-ValeurCmp = R;
-IdModule  = Resistors_SMD:Resistor_SMD0805_ReflowWave;
+TimeStamp = /5568D5A7;
+Reference = RP1;
+ValeurCmp = 82R;
+IdModule  = Resistors_SMD:r_cat16-4;
 EndCmp
 
 BeginCmp

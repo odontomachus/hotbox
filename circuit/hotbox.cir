@@ -1,46 +1,44 @@
-* EESchema Netlist Version 1.1 (Spice format) creation date: Thu 28 May 2015 11:22:25 AM EDT
+* EESchema Netlist Version 1.1 (Spice format) creation date: Sat 30 May 2015 04:27:18 PM EDT
 
 * To exclude a component from the Spice Netlist add [Spice_Netlist_Enabled] user FIELD set to: N
 * To reorder the component spice node sequence add [Spice_Node_Sequence] user FIELD and define sequence: 2,1,0
 
 *Sheet Name:/
-IC1  Net-_IC1-Pad1_ ? GND +3.3V GND +3.3V Net-_C5-Pad2_ Net-_C6-Pad2_ Net-_IC1-Pad9_ ? ? ? ? ? Net-_IC1-Pad15_ Net-_IC1-Pad16_ Net-_IC1-Pad17_ +3.3V ? Net-_C4-Pad2_ GND ? ? Net-_IC1-Pad24_ ? ? /TH1 /TH2 Net-_IC1-Pad29_ Net-_IC1-Pad30_ Net-_IC1-Pad31_ ? ATMEGA48A-M		
+IC1  Net-_IC1-Pad1_ ? GND +3.3V GND +3.3V Net-_C5-Pad2_ Net-_C6-Pad2_ ? ? ? ? ? ? Net-_IC1-Pad15_ Net-_IC1-Pad16_ Net-_IC1-Pad17_ +3.3V ? Net-_C4-Pad2_ GND ? ? Net-_IC1-Pad24_ ? ? /TH1 /TH2 Net-_IC1-Pad29_ Net-_IC1-Pad30_ Net-_IC1-Pad31_ Net-_IC1-Pad32_ ATMEGA48A-M		
 TH1  GND ? THERMISTOR		
 TH2  GND ? THERMISTOR		
 R2  /TH1 +3.3V R		
 R3  /TH2 +3.3V R		
 X1  Net-_C5-Pad2_ Net-_C6-Pad2_ CRYSTAL		
-C5  GND Net-_C5-Pad2_ C		
-C6  GND Net-_C6-Pad2_ C		
+C5  GND Net-_C5-Pad2_ 12pF		
+C6  GND Net-_C6-Pad2_ 12pF		
 R7  Net-_D3-Pad3_ Net-_R7-Pad2_ 22kR		
 R8  Net-_D3-Pad1_ Net-_R8-Pad2_ 22kR		
-R1  Net-_R1-Pad1_ Net-_IC1-Pad24_ 4.7kR		
+R1  Net-_IC1-Pad24_ +3.3V 4.7kR		
 K1  /neutral /live /load CONN_3		
-D1  Net-_D1-Pad1_ GND LED		
-D2  Net-_D2-Pad1_ GND LED		
-R5  Net-_D1-Pad1_ Net-_IC1-Pad1_ R		
-R6  Net-_D2-Pad1_ Net-_IC1-Pad9_ R		
+D1  Net-_D1-Pad1_ GND LED-orange		
+D2  Net-_D2-Pad1_ GND LED-green		
 R4  Net-_R4-Pad1_ Net-_IC1-Pad16_ R		
 R9  /live Net-_C7-Pad2_ R		
 P1  Net-_P1-Pad1_ GND CONN_2		
-C2  +3.3V GND CP1		
-C4  GND Net-_C4-Pad2_ C		
+C2  +3.3V GND 220uF		
+C4  GND Net-_C4-Pad2_ 0.1uF		
 P2  GND /TH1 ? ? /TH2 CONN_5		
 U3  /load /live Net-_U2-Pad4_ BTA312Y-600C		
 R11  Net-_C8-Pad2_ /live R		
 C8  /load Net-_C8-Pad2_ C		
 U1  GND +3.3V Net-_P1-Pad1_ NCP1117ST33T3G		
 C7  /load Net-_C7-Pad2_ C		
-R10  Net-_R10-Pad1_ Net-_C7-Pad2_ R		
+R10  Net-_R10-Pad1_ Net-_C7-Pad2_ 330R		
 D3  Net-_D3-Pad1_ /live Net-_D3-Pad3_ /neutral BRIDGE		
 P3  Net-_IC1-Pad31_ Net-_IC1-Pad30_ GND +3.3V CONN_4		
 P4  Net-_IC1-Pad16_ Net-_IC1-Pad17_ Net-_IC1-Pad29_ GND Net-_IC1-Pad15_ +3.3V CONN_3X2		
 U2  Net-_R4-Pad1_ GND ? Net-_U2-Pad4_ ? Net-_R10-Pad1_ OPTO-TRIAC		
-C3  GND +3.3V C		
+C3  GND +3.3V 220uF		
 C1  GND +3.3V C		
-R12  +3.3V Net-_D4-Pad1_ R		
-D4  Net-_D4-Pad1_ GND LED		
-U4  Net-_R1-Pad1_ GND Net-_R8-Pad2_ Net-_R7-Pad2_ OPTO-TRANSISTOR4		
+D4  Net-_D4-Pad1_ GND LED-blue		
+U4  Net-_R7-Pad2_ Net-_R8-Pad2_ GND Net-_IC1-Pad24_ OPTO-TRANSISTOR4		
+RP1  +3.3V Net-_IC1-Pad1_ ? Net-_IC1-Pad32_ Net-_D1-Pad1_ ? Net-_D2-Pad1_ Net-_D4-Pad1_ 82R		
 *Sheet Name:/thermistor/
 
 .end
