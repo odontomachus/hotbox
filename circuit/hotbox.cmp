@@ -1,4 +1,4 @@
-Cmp-Mod V01 Created by CvPcb (2014-jan-25)-product date = Sat 30 May 2015 02:32:41 PM EDT
+Cmp-Mod V01 Created by Cvpcb (after 2015-mar-04 BZR unknown)-product   date = Wed 10 Jun 2015 01:58:45 PM EDT
 
 BeginCmp
 TimeStamp = /55663D28;
@@ -10,21 +10,21 @@ EndCmp
 BeginCmp
 TimeStamp = /55626F50;
 Reference = C2;
-ValeurCmp = CP1;
+ValeurCmp = 220uF;
 IdModule  = Capacitors_Tantalum_SMD:TantalC_SizeC_EIA-6032_Reflow;
 EndCmp
 
 BeginCmp
 TimeStamp = /55663AE3;
 Reference = C3;
-ValeurCmp = C;
+ValeurCmp = 220uF;
 IdModule  = Capacitors_SMD:c_0805;
 EndCmp
 
 BeginCmp
 TimeStamp = /55627022;
 Reference = C4;
-ValeurCmp = C;
+ValeurCmp = 0.1uF;
 IdModule  = Capacitors_SMD:c_0805;
 EndCmp
 
@@ -40,20 +40,6 @@ TimeStamp = /5560BAC2;
 Reference = C6;
 ValeurCmp = 12pF;
 IdModule  = Capacitors_SMD:c_0805;
-EndCmp
-
-BeginCmp
-TimeStamp = /5564C8F9;
-Reference = C7;
-ValeurCmp = C;
-IdModule  = Capacitors_SMD:c_1812;
-EndCmp
-
-BeginCmp
-TimeStamp = /5564BA14;
-Reference = C8;
-ValeurCmp = C;
-IdModule  = Capacitors_SMD:c_1812;
 EndCmp
 
 BeginCmp
@@ -88,7 +74,7 @@ BeginCmp
 TimeStamp = /5560A17C;
 Reference = IC1;
 ValeurCmp = ATMEGA48A-M;
-IdModule  = custom:QFN-32-1EP_5x5mm_Pitch0.5mm;
+IdModule  = Housings_DFN_QFN:QFN-32-1EP_5x5mm_Pitch0.5mm;
 EndCmp
 
 BeginCmp
@@ -169,24 +155,10 @@ IdModule  = Resistors_SMD:Resistor_SMD2512_ReflowWave;
 EndCmp
 
 BeginCmp
-TimeStamp = /55611522;
-Reference = R9;
-ValeurCmp = R;
-IdModule  = Resistors_SMD:Resistor_SMD0805_HandSoldering;
-EndCmp
-
-BeginCmp
 TimeStamp = /5564C904;
 Reference = R10;
 ValeurCmp = 330R;
-IdModule  = Resistors_SMD:Resistor_SMD0805_HandSoldering;
-EndCmp
-
-BeginCmp
-TimeStamp = /5564BA09;
-Reference = R11;
-ValeurCmp = R;
-IdModule  = Resistors_SMD:Resistor_SMD0805_ReflowWave;
+IdModule  = Resistors_SMD:R_0805;
 EndCmp
 
 BeginCmp
@@ -234,7 +206,7 @@ EndCmp
 BeginCmp
 TimeStamp = /55667236;
 Reference = U4;
-ValeurCmp = OPTO-TRANSISTOR4;
+ValeurCmp = PC123;
 IdModule  = custom:DIP4F;
 EndCmp
 
