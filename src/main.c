@@ -198,10 +198,10 @@ void run() {
 int main () {
   status = HB_BOOT;
   RTC_init();
-  // Relay controller 1;
-  DDRD |= (1<<PD5);
-  // Relay controller 2;
-  DDRB |= (1<<PB0);
+  // Indicators;
+  DDRD |= (1<<PD2 | 1<<PD3);
+  // Opto-triac;
+  DDRB |= (1<<PB4);
   USART_init();
   status = HB_INIT;
   send_status();
